@@ -12,9 +12,9 @@ import types
 import rpmUtils
 import rpmUtils.transaction
 
+sys.path.insert(0, '/var/ftp/pub/yum/dell-repo/scripts/lib/')
 
 from decorator import decorator
-
 import mebtrace
 
 # levels:
