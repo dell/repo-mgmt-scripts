@@ -3,7 +3,7 @@
 DIR=$(cd $(dirname $0); pwd)
 PATH=$PATH:$DIR
 
-packages=$(movesigned.py -i /var/ftp/pub/yum/dell-repo/plague --check-only | head -n1)
+packages=$(movesigned.py -i /var/ftp/pub/yum/dell-repo/plague --check-only 2>/dev/null | head -n1)
 
 if [ -n "$packages" ]; then
     echo ""
