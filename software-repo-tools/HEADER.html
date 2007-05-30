@@ -1,0 +1,69 @@
+<html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+<title>UNOFFICIAL Dell yum package repository</title>
+<link href="README.css" rel="stylesheet" type="text/css">
+</head><body>
+<h1>(UNOFFICIAL) Dell Linux yum repository (UNOFFICIAL)</h1>
+
+<h2>Pre-Setup</h2>
+<em>Important!</em>
+You must complete a couple of pre-setup tasks before using this repository, as outlined below.
+<ul>
+<li><b>Import vendor GPG keys: Red Hat Enterprise Linux 3/4 only</b> 
+<pre>rpm --import /usr/share/rhn/RPM-GPG-KEY</pre>
+<li><b>Update System</b>: We recommend that you update your system before installing.
+    <ul>
+        <li>Red Hat Enterprise Linux systems: <pre>up2date -u</pre></li>
+        <li>Fedora Core systems: <pre>yum update</pre></li>
+        <li>SUSE systems:...(need info here).</li>
+    </ul>
+</li>
+</ul>
+<p>
+<em>Note:</em> If you are a Dell internal tester, you cannot reach the Red Hat Network through the firewall. Go to http://rhn.linuxdev.us.dell.com instead. You can register your machine there and update your system before running through the following steps.
+
+<h2>Set Up</h2>
+To set up your system to pull from the Dell yum repository, run the following command as root:
+<div class="fragment"><pre>
+wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||;'" -->/bootstrap.cgi | bash
+</pre></div>
+<p>
+For information specific to setup of libsmbios, please see the <a href="http://linux.dell.com/libsmbios/main/yum.html">libsmbios page</a>
+
+<h2>OpenManage Server Administrator</h2>
+The OMSA RPMS have moved into the <a href="../hardware">hardware
+repository</a>. Please see the instructions in the hardware repository
+for installation instructions for OMSA.
+
+<h2>Support</h2>
+This is the unofficial Dell yum package repository. 
+Note that this repository is not officially Dell-supported. 
+For support questions related to this package repository, please use the appropriate mailing list:
+<ul>
+    <li>For libsmbios related questions: <a href="http://lists.us.dell.com/mailman/listinfo/libsmbios-devel">libsmbios-devel</a>  Note that this is the official repository for libsmbios releases. All other software in this repository is unofficial. For libsmbios questions, please use the mailing list.</li>
+    <li>For other questions (OMSA, etc): <a href="http://lists.us.dell.com/mailman/listinfo/linux-poweredge">linux-poweredge</a></li>
+</ul>
+Do not call Dell Technical support with questions about this repository, or software installed from this repository, as they will not be able to help you! For all questions, please use the mailing lists above.
+
+<H2>Local Mirrors of this site</h2>
+If you wish to mirror this site to a server inside your firewall,
+please be aware that rsync is not available on this server.  We
+recommend using the 'reposync' application which is included in the <a
+href="http://linux.duke.edu/yum/download/yum-utils/">yum-utils</a>
+package of the <a href="http://fedoraproject.org">Fedora Project</a>.
+You may also be interested in <a
+href="http://fedoraproject.org/wiki/Projects/fedora-mirror">fedora-mirror</a>
+for maintaining your own mirror of the Fedora packages when rsync
+isn't possible for you.
+
+<hr>
+<!--
+loathe SSI (please ignore):
+each of these four gives different results depending on which apache
+version you are using:
+http://<!--#echo var="SERVER_NAME" --><!--#echo var="SCRIPT_NAME" -->/bootstrap.cgi
+http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en ${SCRIPT_NAME}" -->/bootstrap.cgi
+http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en ${SCRIPT_NAME%/HEADER.html}" -->/bootstrap.cgi
+Looks like this is the only variant that gives the correct answer across all our servers
+http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||;'" -->/bootstrap.cgi
+-->
+</body>

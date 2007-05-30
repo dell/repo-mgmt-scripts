@@ -1,3 +1,0 @@
-1 * * * * /var/ftp/pub/yum/dell-repo/scripts/update-repo.sh /var/ftp/pub/yum/dell-repo/plague-signed/*
-6 * * * * /var/ftp/pub/yum/dell-repo/scripts/update-repo.sh /var/ftp/pub/yum/dell-repo/plague/*
-10 * * * * /var/ftp/pub/yum/dell-repo/scripts/check-plague.sh

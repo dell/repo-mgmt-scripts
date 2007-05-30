@@ -1,0 +1,4 @@
+Options Indexes FollowSymlinks ExecCGI Includes
+Addhandler cgi-script cgi pl
+XBitHack off
+HEADERNAME nonexistent.html
