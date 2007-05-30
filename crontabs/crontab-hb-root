@@ -1,2 +1,0 @@
-0 0 * * 0  /var/ftp/pub/yum/dell-repo/scripts/cleanup-plague.sh > /dev/null 2>&1
-
