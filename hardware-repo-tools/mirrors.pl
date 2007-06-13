@@ -12,6 +12,7 @@ print "Content-type: text/plain\n\n";
 my $ven_id = $cgi->param('sys_ven_id') || "0";
 my $dev_id = $cgi->param('sys_dev_id') || "0";
 my $osname = $cgi->param('osname') || "null_OS";
+my $repo_config = $cgi->param('repo_config') || "latest";
 my $dellname = $cgi->param('dellname') || "null_dellname";
 my $thisdir=abs_path(dirname($0));
 
@@ -49,16 +50,16 @@ $server_name =~ s|/$||;
 
 my $url = "";
 if ($dellname ne "null_dellname") {
-    if (-d ($thisdir . "/${dellname}/${osname}")) {
-        $url = "http://${server_name}/${base_web_path}/${dellname}/${osname}\n";
+    if (-d ($thisdir . "/${repo_config}/${dellname}/${osname}")) {
+        $url = "http://${server_name}/${base_web_path}/${repo_config}/${dellname}/${osname}\n";
     } else {
-        $url = "http://${server_name}/${base_web_path}/emptyrepo/\n";
+        $url = "http://${server_name}/${base_web_path}/${repo_config}/emptyrepo/\n";
     }
 } else {
-    if (-d ($thisdir . "/system.ven_${ven_id}.dev_${dev_id}/${osname}")) {
-        $url = "http://${server_name}/${base_web_path}/system.ven_${ven_id}.dev_${dev_id}/${osname}\n";
+    if (-d ($thisdir . "/${repo_config}/system.ven_${ven_id}.dev_${dev_id}/${osname}")) {
+        $url = "http://${server_name}/${base_web_path}/${repo_config}/system.ven_${ven_id}.dev_${dev_id}/${osname}\n";
     } else {
-        $url = "http://${server_name}/${base_web_path}/emptyrepo/\n";
+        $url = "http://${server_name}/${base_web_path}/${repo_config}/emptyrepo/\n";
     }
 }
 

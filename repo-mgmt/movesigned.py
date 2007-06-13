@@ -1,5 +1,5 @@
 #!/usr/bin/python2
-# vim:expandtab:autoindent:tabstop=4:shiftwidth=4:filetype=python:
+# vim:tw=0:expandtab:autoindent:tabstop=4:shiftwidth=4:filetype=python:
 
 # import arranged alphabetically
 import getopt
@@ -12,6 +12,7 @@ import types
 import rpmUtils
 import rpmUtils.transaction
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(sys.argv[0])), "lib"))
 sys.path.insert(0, '/var/ftp/pub/yum/dell-repo/scripts/lib/')
 
 from decorator import decorator

@@ -14,7 +14,7 @@ do
 	for distro in $PLAGUE_BUILDS
 	do
 		plague-client build $file ${PREFIX}${distro}
-		sleep 5
+		sleep 5 ||:
 	done
     rm $file
 done

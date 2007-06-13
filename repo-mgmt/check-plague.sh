@@ -11,7 +11,7 @@ if [ -n "$packages" ]; then
     echo " are packages in the plague repository that need to be signed and"
     echo " sent on their way."
     echo
-    echo "Please run: /var/ftp/pub/yum/dell-repo/scripts/process-plague.sh"
+    echo "Please run: $DIR/process-plague.sh"
     echo
     echo "Here is a list of unsigned packages:" 
     echo
