@@ -12,7 +12,7 @@ import types
 import rpmUtils
 import rpmUtils.transaction
 
-sys.path.insert(0, '/var/ftp/pub/yum/dell-repo/scripts/lib/')
+sys.path.insert(0, os.path.join(os.path.dirname(sys.argv[0]), "lib"))
 
 from decorator import decorator
 import mebtrace
