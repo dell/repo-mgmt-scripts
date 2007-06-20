@@ -12,7 +12,9 @@ print "Content-type: text/plain\n\n";
 my $ven_id = $cgi->param('sys_ven_id') || "0";
 my $dev_id = $cgi->param('sys_dev_id') || "0";
 my $osname = $cgi->param('osname') || "null_OS";
+my $basearch = $cgi->param('basearch') || "null_basearch";
 my $repo_config = $cgi->param('repo_config') || "latest";
+if ($repo_config eq "$repo_config")  {$repo_config="latest";}
 my $dellname = $cgi->param('dellname') || "null_dellname";
 my $thisdir=abs_path(dirname($0));
 

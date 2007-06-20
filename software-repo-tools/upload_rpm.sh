@@ -9,16 +9,16 @@ DIR=$(cd $(dirname $0); pwd)
 
 # dont use '..' here or symlinks mess us up.
 REPO_TOPDIR=$(dirname $DIR)
-WHICH_REPO=$1
-SRPM=$2
 
-if [ -z "$WHICH_REPO" -o ! -e "$SRPM" ]; then
-    echo "missing params"
-    echo " upload_rpm.sh repo srpm"
+SRPM=$1
+
+if [ ! -e "$SRPM" ]; then
+    echo "Usage:"
+    echo " upload_rpm.sh  package.src.rpm"
     exit 1
 fi
 
-REPO_PATH=$REPO_TOPDIR/incoming/$WHICH_REPO/platform_independent/
+REPO_PATH=$REPO_TOPDIR/incoming/
 RPM_NAME=$(rpm -qp --qf "%{name}" $SRPM)
 RPM_VER=$(rpm -qp --qf "%{version}-%{release}" $SRPM)
 

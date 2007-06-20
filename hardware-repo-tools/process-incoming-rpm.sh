@@ -28,6 +28,7 @@ do
     echo "remove $i/.olddata"
     rm -rf $i/.olddata
     echo "gpg sign repo"
+    rm $i/repodata/repomd.xml.*
     gpg --batch --no-tty -ab $i/repodata/repomd.xml
     gpg --batch --no-tty -a --export libsmbios > $i/repodata/repomd.xml.key
 done

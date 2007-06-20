@@ -119,15 +119,11 @@ while [ $i -lt ${#GPG_KEY[*]} ]; do
 done
 
 # try new path
-wget -q -N ${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/dell-repository/${REPO_RPM_VER}/noarch/${REPO_RPM}
+RPMPATH=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/$(uname -i)/dell-repository/${REPO_RPM_VER}/noarch/${REPO_RPM}
+wget -q -N ${RPMPATH}
 if [ ! -e ${REPO_RPM} ]; then
-    # try old path
-    wget -q -N ${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/$(uname -i)/RPMS/${REPO_RPM}
-    if [ ! -e ${REPO_RPM} ]; then
-	    echo "Failed to download RPM =pri location=: ${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/dell-repository/${REPO_RPM_VER}/noarch/${REPO_RPM}"
-	    echo "Failed to download RPM =alt location=: ${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/$(uname -i)/RPMS/${REPO_RPM}"
-	    exit 1
-    fi
+    echo "Failed to download RPM: ${RPMPATH}"
+    exit 1
 fi
 
 

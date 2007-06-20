@@ -19,7 +19,7 @@ my $base_repo = dirname($software_repo);
 my $hardware_repo = "$base_repo/hardware";
 
 my $fd;
-open $fd, "$thisdir/.bootstrap.sh" or die "#oops...";
+open $fd, "$thisdir/_tools/bootstrap.sh" or die "#oops...";
 while(<$fd>)
 {
     s|^SOFTWARE_SERVER=.*|SOFTWARE_SERVER="http://$server_name"|;
