@@ -1,9 +1,6 @@
 #!/bin/sh
 # vim:et:tw=0:ts=4:sw=4:filetype=sh
 
-echo "This bootstrap script is still under development and should not yet be used."
-exit 1
-
 # The purpose of this script is to download and install the appropriate 
 # repository RPM. This RPM will set up the Dell yum repositories on your 
 # system. This script will also install the Dell GPG keys used to sign 
@@ -31,8 +28,8 @@ GPG_KEY[1]=${HARDWARE_SERVER}/${HARDWARE_REPO_URL}/RPM-GPG-KEY-libsmbios
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="1-0"
-REPO_NAME="dell-hardware"
+REPO_RPM_VER="1-8"
+REPO_NAME="dell-hw-indep"
 
 ##############################################################################
 #  Should not need to edit anything below this point
@@ -41,13 +38,39 @@ REPO_NAME="dell-hardware"
 #set -e
 #set -x
 
+# Mirror mode
+function write_mirror_cfg() 
+{
+  if [ -e /etc/dell-mirror.cfg ]; then
+    # remove any old entries
+    perl -n -i -e "print if ! /^HARDWARE_SERVER/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^HARDWARE_REPO_URL/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^PUBLIC_HARDWARE_SERVER/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^PUBLIC_HARDWARE_REPO_URL/;" /etc/dell-mirror.cfg
+  fi
+  if [ "$PUBLIC_HARDWARE_REPO_URL" != "$HARDWARE_REPO_URL" -o "$PUBLIC_HARDWARE_SERVER" != "$HARDWARE_SERVER" ]; then
+    # update yum conf
+    echo "activating mirror mode:"
+    echo "  $PUBLIC_HARDWARE_REPO_URL != $HARDWARE_REPO_URL"
+    echo "    and/or"
+    echo "  $PUBLIC_HARDWARE_SERVER != $HARDWARE_SERVER"
+    echo "HARDWARE_SERVER=$HARDWARE_SERVER" >> /etc/dell-mirror.cfg
+    echo "HARDWARE_REPO_URL=$HARDWARE_REPO_URL" >> /etc/dell-mirror.cfg
+
+    echo "PUBLIC_HARDWARE_SERVER=$PUBLIC_HARDWARE_SERVER" >> /etc/dell-mirror.cfg
+    echo "PUBLIC_HARDWARE_REPO_URL=$PUBLIC_HARDWARE_REPO_URL" >> /etc/dell-mirror.cfg
+  fi
+}
+
+
 function distro_version()
 {
     # What distribution are we running?
     dist=unknown
     [ ! -e /bin/rpm ] && echo "$dist" && return
+    # tail is a fix for case where they have >1 redhat-release rpm (a bug on their end)
     WHATPROVIDES_REDHAT_RELEASE=$(rpm -q --whatprovides redhat-release | tail -n1)
-    if [ $? -eq 0 ]; then
+    if rpm -q --whatprovides redhat-release >/dev/null 2>&1; then
 	    if $(echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep redhat-release > /dev/null 2>&1) ; then
 	        REDHAT_RELEASE=1
 	    elif (echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep centos-release > /dev/null 2>&1) ; then
@@ -56,7 +79,7 @@ function distro_version()
     fi
 
     WHATPROVIDES_SLES_RELEASE=$(rpm -q --whatprovides sles-release | tail -n1)
-    if [ $? -eq 0 ]; then
+    if rpm -q --whatprovides sles-release >/dev/null 2>&1; then
 	    SLES_RELEASE=1
     fi
 
@@ -98,49 +121,40 @@ while [ $i -lt ${#GPG_KEY[*]} ]; do
 done
 
 # download repo rpm
-wget -q -N ${HARDWARE_SERVER}/${HARDWARE_REPO_URL}/${dist}/${REPO_NAME}-repository/${REPO_RPM_VER}/noarch/${REPO_RPM}
+basearch=$(uname -i)
+ACTUAL_REPO_URL=$(wget -q -O- ${HARDWARE_SERVER}/${HARDWARE_REPO_URL}/mirrors.pl?osname=${dist}\&basearch=$basearch)
+RPM_URL=${ACTUAL_REPO_URL}/$basearch/${REPO_NAME}-repository/${REPO_RPM_VER}/$REPO_RPM
+wget -q -N $RPM_URL
 if [ ! -e ${REPO_RPM} ]; then
-    echo "Failed to download RPM =pri location=: ${HARDWARE_SERVER}/${HARDWARE_REPO_URL}/${dist}/${REPO_NAME}-repository/${REPO_RPM_VER}/noarch/${REPO_RPM}"
+    echo "Failed to download RPM: ${RPM_URL}"
     exit 1
 fi
-
 
 if [ "$CHECK_REPO_SIGNATURE" = "1" ]; then
     rpm -K ${REPO_RPM} > /dev/null 2>&1
     [ $? -ne 0 ] && echo "Failed ${REPO_RPM} GPG check!" && exit 1 
 fi
 
-echo "Installing ${REPO_RPM}"
+# write mirror cfg before installing repo rpm
+write_mirror_cfg
+
+echo "Installing platform-independent RPM: ${REPO_RPM}"
 rpm -U ${REPO_RPM} > /dev/null 2>&1
 
-# Mirror mode
-if [ "$PUBLIC_HARDWARE_REPO_URL" != "$HARDWARE_REPO_URL" -o "$PUBLIC_HARDWARE_SERVER" != "$HARDWARE_SERVER" ]; then
-    # update yum conf
-    echo "activating mirror mode:"
-    echo "  $PUBLIC_HARDWARE_REPO_URL != $HARDWARE_REPO_URL"
-    echo "    or"
-    echo "  $PUBLIC_HARDWARE_SERVER != $HARDWARE_SERVER"
-    rm -f /etc/dell-mirror.cfg 2>/dev/null
-    echo "HARDWARE_SERVER=$HARDWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "HARDWARE_REPO_URL=$HARDWARE_REPO_URL" >> /etc/dell-mirror.cfg
-
-    echo "PUBLIC_HARDWARE_SERVER=$PUBLIC_HARDWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "PUBLIC_HARDWARE_REPO_URL=$PUBLIC_HARDWARE_REPO_URL" >> /etc/dell-mirror.cfg
-
-    perl -p -i -e "s|$PUBLIC_HARDWARE_REPO_URL|$HARDWARE_REPO_URL|g;" /etc/yum.repos.d/dell.repo 
-    perl -p -i -e "s|$PUBLIC_HARDWARE_SERVER|$HARDWARE_SERVER|g;" /etc/yum.repos.d/dell.repo
-
-    # update rhn sources
-    RHN=/etc/sysconfig/rhn/sources
-    if [ -e $RHN ]; then
-        perl -p -i -e "s|^(^yum dell-hardware.*)$PUBLIC_HARDWARE_REPO_URL|\$1$HARDWARE_REPO_URL|g;" $RHN
-        perl -p -i -e "s|^(^yum dell-hardware.*)$PUBLIC_HARDWARE_SERVER|\$1$HARDWARE_SERVER|g;" $RHN
-        perl -p -i -e "s|^(^yum-mirror dell-hardware.*)$PUBLIC_HARDWARE_REPO_URL|\$1$HARDWARE_REPO_URL|g;" $RHN
-        perl -p -i -e "s|^(^yum-mirror dell-hardware.*)$PUBLIC_HARDWARE_SERVER|\$1$HARDWARE_SERVER|g;" $RHN
-    fi
-else
-    rm -f /etc/dell-mirror.cfg 2>/dev/null
-fi
+echo -e "\nInstalling platform-specific repository RPM."
+case $dist in
+    el[34])
+        up2date -i dell-hw-specific-repository
+        ;;
+    el5)
+        yum -y install dell-hw-specific-repository
+        ;;
+    sles10)
+        rug install -y dell-hw-specific-repository
+        ;;
+    *)
+        ;;
+esac
 
 echo "Done!"
 exit 0

@@ -16,55 +16,8 @@
 
 <h2>What is this?</h2> 
 
-<p>This repository contains an extract of all of the drivers in Server
-Assistant. Because Dell develops, tests, and ships drivers on a per-platform
-basis, the Server Assistant CD contains a cross-reference for which drivers
-belong to each system. We have extracted these drivers into a series of
-system-specific 'yum' repositories.</p>
-
-<p>Becuase this repository is based on the Server Assistant contents, it
-contains drivers only for the Dell PowerEdge Server series. Also, because Server
-Assistant only supports RHEL 3, RHEL 4, SLES 9, and SLES 10, those are the only
-OSes currently supported in this repository. (but see CentOS note below)</p>
-
-<p>Server Assistant background: Dell ships a CD set with each PowerEdge server.
-One of the CDs in this set contains Server Assistant. Server Assistant is a CD
-that will assist you in re-installing the Operating System on your Dell
-PowerEdge server. This CD contains all of the updated drivers and RPMs that are
-installed in the Dell factory. For example, driver updates for new storage
-controller and such.</p>
-
-<p>The CD containing Server Assistant has been called various things, "Dell
-Server Assistant CD" (DSA), the "Dell Installation and Server Management CD"
-(ISM), and in the future, it is possible that it will be called the "Common
-Deploy and Update CD" (CDU).</p>
-
-<p>We expect that in the future, as we get a better way to get the
-drivers for Precision workstations, we will be able to post drivers for
-Precision. And, of course, as Dell expands its Linux offerings, we
-expect to post other platform specific stuff here as well.</p>
-
-<h2>Supported Hardware</h2>
-
-<p> All systems supported by OM 5.2 Server Assistant are suppored by
-this repo. The version of Server Assistant carried on OM 5.2 was used to
-create this repo.</p>
-
-<h2>Supported Operating Systems</h2>
-
-<p> OM 5.2 officially supports RHEL 3, RHEL 4, SLES 9, and SLES 10.
-These are the OSes supported by this repo. </p>
-
-<p>Note: "rebuilt" versions of the above such as CentOS or ScientificLinux
-*should* work. Please report problems to the mailing list and we will
-(unofficially) try to make these OSes work if there are problems. </p>
-
-<p>Community distros such as Fedora and OpenSuse are <b>completely untested</b>
-with this repo. As such, they may or may not work. Most of the kernel drivers in
-this repo are in DKMS format. As such, there is a likelyhood that they may work,
-but in general, we do nothing to test or ensure that these packages work with
-Fedora. If you have problems, let us know on the mailing list and we will report
-them back. There is no guarantee that these will be fixed.</p>
+<p>Please see the detailed description in the Linux Wiki: 
+<a href="http://linux.dell.com/wiki/index.php/Repository/hardware">Linux yum hardware repository</a>
 
 <h2>How to set up</h2>
 
@@ -85,18 +38,13 @@ which are required for these repos to work.
 
 <ol>
 
-<li>Set up the Dell Sofware Repository at 
-<a href="http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||; s|hardware$||;'"-->software">http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||; s|hardware$||;'" -->software</a>,
-like this: 
+<li>Set up this repository:
 
 <div class="fragment"><pre>
-wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||; s|hardware$||;'" -->software/bootstrap.cgi | bash
+wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||;'" -->/bootstrap.cgi | bash
 </pre></div>
 
 </li>
-
-<li>Install the "dellhw-repository" package, like this: <div
-class="fragment"><pre>yum -y install dellhw-repository </pre></div> </li>
 
 <li><b>Optional</b> Install OpenManage Server Administrator:
 <div class="fragment"><pre>yum install srvadmin-all</pre></div>
@@ -114,20 +62,12 @@ SC-class systems, as OMSA is completely unsupported on these systems.
 
 <ol>
 
-<li>Set up the Dell Software Repository at 
-<a href="http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||; s|hardware$||;'"-->software">http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||; s|hardware$||;'" -->software</a>,
-like this: 
+<li>Set up this repository:
 
 <div class="fragment"><pre>
-wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||; s|hardware$||;'" -->software/bootstrap.cgi | bash
+wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||;'" -->/bootstrap.cgi | bash
 </pre></div>
 
-</li>
-
-<li>Install the "dellhw-repository" package, like this:
-<div class="fragment"><pre>
-up2date -i dellhw-repository
-</pre></div>
 </li>
 
 <li><b>Optional</b> Install <a href="#omsa">OpenManage Server Administrator</a>:
@@ -144,9 +84,33 @@ SC-class systems, as OMSA is completely unsupported on these systems.
 
 <h2><a id="rug">How to set up for usage with rug: SLES 10</a></h2>
 
-<p>I havent written these instructions yet. Patches welcome!</p>
-<p>This repo *should* work with rug, as rug supports yum repo setup. Just have
-to get a SLES system to test with.</p>
+<b>NOTE:</b> sles support is experimental and broken right now. I am working on
+it.
+
+<ol>
+
+<li>Set up this repository:
+
+<div class="fragment"><pre>
+wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRIPT_NAME | perl -p -e 's|/HEADER.html||;'" -->/bootstrap.cgi | bash
+</pre></div>
+
+</li>
+
+<li><b>Optional</b> Install <a href="#omsa">OpenManage Server Administrator</a>:
+<div class="fragment"><pre>
+rug install srvadmin-all
+</pre></div>
+<b>NOTE:</b> OMSA will not install on unsupported systems. If you receive a
+message at install that the system is not supported, it is likely that your
+system is not supported, and the install will fail. This is most common on
+SC-class systems, as OMSA is completely unsupported on these systems.
+</li>
+
+</ol>
+
+
+
 
 
 <h2><a id="manual">Manually configuring the hardware repo</a></h2>
