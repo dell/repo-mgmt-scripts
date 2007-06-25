@@ -93,10 +93,10 @@ my %dsamapping = (
     'el4.x86_64' => 'rh40_64',
     'el5.i386' => 'rh50',
     'el5.x86_64' => 'rh50_64',
-    'sles9.i386' => 'sles9',
-    'sles9.x86_64' => 'sles9_64',
-    'sles10.i386' => 'sles10',
-    'sles10.x86_64' => 'sles10_64',
+    'sles9.i386' => 'suse9',
+    'sles9.x86_64' => 'suse9_64',
+    'sles10.i386' => 'suse10',
+    'sles10.x86_64' => 'suse10_64',
     );
 
 $osname = $dsamapping{$osname .".". $basearch} if defined $dsamapping{$osname .".".  $basearch};

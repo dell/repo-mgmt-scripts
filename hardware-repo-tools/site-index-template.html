@@ -23,13 +23,12 @@
 
 <p><a href="#yum">yum setup instructions</a> for RHEL5, Fedora5+, CentOS.</p>
 
-<p> <a href="#up2date">up2date setup instructions</a> for RHEL3/RHEL4.</p>
+<p> <a href="#up2date">up2date setup instructions</a> for RHEL4.</p>
 
 <p><a href="#rug">rug setup instructions</a> for SUSE.</p>
 
 <h2><a id="yum">How to set up for usage with yum (minimum required version: yum
-2.4.x): RHEL5, CentOS, Scientific
-Linux, RHEL3+yum, RHEL4+yum, SLES+yum</a></h2>
+2.4.x): RHEL5, CentOS, Scientific Linux, RHEL4+yum, SLES+yum</a></h2>
 
 Note: The version of yum distributed on CentOS 3 by default is too old (yum
 2.0.8). You will need to upgrade to a yum 2.4.x version in order to use these
@@ -56,7 +55,7 @@ SC-class systems, as OMSA is completely unsupported on these systems.
 
 </ol>
 
-<h2><a id="up2date">How to set up for usage with up2date: RHEL3, RHEL4</a></h2>
+<h2><a id="up2date">How to set up for usage with up2date: RHEL4</a></h2>
 
 <p>Follow these instructions for use with up2date:</p>
 
@@ -70,7 +69,7 @@ wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRI
 
 </li>
 
-<li><b>Optional</b> Install <a href="#omsa">OpenManage Server Administrator</a>:
+<li><b>Optional</b> Install <a href="http://linux.dell.com/wiki/index.php/Repository/hardware#OpenManage_Server_Administrator">OpenManage Server Administrator</a>:
 <div class="fragment"><pre>
 up2date -i srvadmin-all
 </pre></div>
@@ -84,9 +83,6 @@ SC-class systems, as OMSA is completely unsupported on these systems.
 
 <h2><a id="rug">How to set up for usage with rug: SLES 10</a></h2>
 
-<b>NOTE:</b> sles support is experimental and broken right now. I am working on
-it.
-
 <ol>
 
 <li>Set up this repository:
@@ -97,76 +93,41 @@ wget -q -O - http://<!--#echo var="SERVER_NAME" --><!--#exec cmd="echo -en $SCRI
 
 </li>
 
-<li><b>Optional</b> Install <a href="#omsa">OpenManage Server Administrator</a>:
+<li><b>Optional</b> Install <a href="http://linux.dell.com/wiki/index.php/Repository/hardware#OpenManage_Server_Administrator">OpenManage Server Administrator</a>:
 <div class="fragment"><pre>
-rug install srvadmin-all
+rug install srvadmin-base
+rug install srvadmin-webserver
+rug install srvadmin-storageservices
 </pre></div>
-<b>NOTE:</b> OMSA will not install on unsupported systems. If you receive a
+<p><b>NOTE 1:</b> OMSA will not install on unsupported systems. If you receive a
 message at install that the system is not supported, it is likely that your
 system is not supported, and the install will fail. This is most common on
 SC-class systems, as OMSA is completely unsupported on these systems.
+<p><b>NOTE 2:</b> If you want to install srvadmin-all, you have to have
+'setserial' installed. I dont have the details on this, but it doesnt appear
+that setserial is installed by default.
 </li>
 
 </ol>
 
 
-
-
-
 <h2><a id="manual">Manually configuring the hardware repo</a></h2>
 
-<p>We recommend you use the automatic methods, listed above, but if
-for some reason you cannot, use this method instead.</p>
-
-<p> This method is somewhat easy, but limited. Simply look for a directory named after your
-system in the list below. Got into that directory and download the dellhw-*.repo
-file corresponding to your OS/ARCH and drop it into /etc/yum.repos.d/.</p>
-
-<p>The limitation of this method is that the repo file you install is specific
-to the exact system you download. It is not recommended to install
-system-specific repository file on a different, non-matching system.</p>
+<p>Manual setup is not recommended or supported at this time.
 
 <h2><a id="omsa">OpenManage Server Administrator</a></h2>
-This repository contains RPMS for Dell OpenManage Server Administrator (OMSA). 
-Currently, OMSA is supported only on Red Hat Enterprise Linux 4 & 5 and SUSE Linux Enterprise 9 & 10. 
-The best way to install OMSA is to install the srvadmin-all metapackage, which
-installs all OMSA components.
-<p>
-Documentation for OMSA 5.2 is here:
-<p><a href="http://support.dell.com/support/edocs/software/svradmin/5.2/en/index.htm">OMSA Documentation Index</a>
-<p><a href="http://support.dell.com/support/edocs/software/svradmin/5.2/en/ug/html/index.htm">OMSA User's Guide</a>
-<p><a href="http://support.dell.com/support/edocs/software/svradmin/5.2/en/cli/html/index.htm">OMSA Command Line Interface User's Guide</a>
-<p><a href="http://support.dell.com/support/edocs/software/svradmin/5.2/en/ug/html/using.htm#wp1039152">How to start the OMSA GUI</a>
-<p>
-To install all OMSA components using using yum (on RHEL 5, CentOS 3/4):
-<div class="fragment"><pre>
-yum install <b><i>**Meta-Package (select from list below)**</i></b>
-</pre></div>
-To install all OMSA components using up2date (on RHEL releases 3/4):
-<div class="fragment"><pre>
-up2date -i <b><i>**Meta-Package (select from list below)**</i></b>
-</pre></div>
 
-<p>
-The following meta packages are provided:
-<ul>
-<li><b>srvadmin-all</b>: Install all OMSA components</li>
-<li><b>srvadmin-base</b>: Install only base OMSA, no web server</li>
-<li><b>srvadmin-diagnostics</b>: Install OMSA diagnostics framework</li>
-<li><b>srvadmin-webserver</b>: Install Web Interface</li>
-<li><b>srvadmin-storageservices</b>: Install RAID Management</li>
-<li><b>srvadmin-rac3</b>: Install components to manage the Dell Remote Access Card 3 </li>
-<li><b>srvadmin-rac4</b>: Install components to manage the Dell Remote Access Card 4 </li>
-<li><b>srvadmin-rac5</b>: Install components to manage the Dell Remote Access Card 5 </li>
-</ul>
+Please see the 
+ <a href="http://linux.dell.com/wiki/index.php/Repository/hardware#OpenManage_Server_Administrator">OMSA section</a>
+in the wiki for more information.
+
 
 <h2>Support</h2>
 This is the not-quite-official Dell yum package repository. 
 Note that this repository is not officially Dell-supported. 
 For support questions related to this package repository, please use the appropriate mailing list:
 <ul>
-    <li>For libsmbios related questions: <a href="http://lists.us.dell.com/mailman/listinfo/libsmbios-devel">libsmbios-devel</a>  Note that this is the official repository for libsmbios releases. For libsmbios questions, please use the mailing list.</li>
-    <li>For other questions (OMSA, etc): <a
+    <li>For OMSA questions: <a
 href="http://lists.us.dell.com/mailman/listinfo/linux-poweredge">linux-poweredge</a>.
 Note that the OMSA software in this repository is 100% official and Dell
 supported, but the yum distribution method via this specific repository is
@@ -187,7 +148,8 @@ href="http://fedoraproject.org/wiki/Projects/fedora-mirror">fedora-mirror</a>
 for maintaining your own mirror of the Fedora packages when rsync
 isn't possible for you.
 
-
+<p><b>COMING SOON:</b> we have rsync access on the way! Mailing list
+announcement will follow. We expect this to be opened up within a few weeks.
 
 <h2>how to recreate this repo</h2> 
 
@@ -197,9 +159,6 @@ that are already on the DSA CD. These modifications have been sent to the DSA
 team and will be available in a future DSA version. The <a
 href="./_tools">_tools</a> subdirectory contains the modified copies of these
 tools, plus configuration files. The readme.txt file describes the process.</p>
-
-
-
 
 
 <h2>WARNING</h2>

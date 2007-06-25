@@ -4,23 +4,6 @@
 </head><body>
 <h1>(UNOFFICIAL) Dell Linux yum repository (UNOFFICIAL)</h1>
 
-<h2>Pre-Setup</h2>
-<em>Important!</em>
-You must complete a couple of pre-setup tasks before using this repository, as outlined below.
-<ul>
-<li><b>Import vendor GPG keys: Red Hat Enterprise Linux 3/4 only</b> 
-<pre>rpm --import /usr/share/rhn/RPM-GPG-KEY</pre>
-<li><b>Update System</b>: We recommend that you update your system before installing.
-    <ul>
-        <li>Red Hat Enterprise Linux systems: <pre>up2date -u</pre></li>
-        <li>Fedora Core systems: <pre>yum update</pre></li>
-        <li>SUSE systems:...(need info here).</li>
-    </ul>
-</li>
-</ul>
-<p>
-<em>Note:</em> If you are a Dell internal tester, you cannot reach the Red Hat Network through the firewall. Go to http://rhn.linuxdev.us.dell.com instead. You can register your machine there and update your system before running through the following steps.
-
 <h2>Set Up</h2>
 To set up your system to pull from the Dell yum repository, run the following command as root:
 <div class="fragment"><pre>

@@ -28,7 +28,7 @@ GPG_KEY[1]=${HARDWARE_SERVER}/${HARDWARE_REPO_URL}/RPM-GPG-KEY-libsmbios
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="1-8"
+REPO_RPM_VER="1-9"
 REPO_NAME="dell-hw-indep"
 
 ##############################################################################
@@ -150,7 +150,42 @@ case $dist in
         yum -y install dell-hw-specific-repository
         ;;
     sles10)
+        #hw indep setup
+        FULL_URL=$(grep ^mirrorlist= /etc//yum.repos.d/dell-hw-indep-repository.repo | cut -d= -f2- )
+        # no vars in SLES, need to replace $basearch
+        basearch=$(uname -i)
+        FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\\\$basearch|$basearch|;")
+
+        # also sles doesnt support CGI params, so fake it with PATH_INFO 
+        # (supported by server-side cgi)
+        FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\?|/|;")
+
+        # SLES 10 doesnt support mirrorlist, so turn into redirect (support is in 
+        # server-side cgi for this)
+        FULL_URL=${FULL_URL}\&redirect=1\&redir_path=
+
+        yes | rug service-add -t ZYPP ${FULL_URL} dell-hw-indep-repository
+        rug subscribe dell-hw-indep-repository
         rug install -y dell-hw-specific-repository
+
+        sys_ven_id=0x1028
+        sys_dev_id=$(getSystemId | grep "^System ID:"| cut -d: -f2 | xargs echo)
+        dellsysidpluginver=up2date
+        FULL_URL=$(grep ^mirrorlist= /etc/yum.repos.d/dell-hw-specific-repository.repo | cut -d= -f2- | perl -p -i -e "s|\\\$sys_ven_id|$sys_ven_id|; s|\\\$sys_dev_id|$sys_dev_id|; s|\\\$dellsysidpluginver|$dellsysidpluginver|;")
+        # no vars in SLES, need to replace $basearch
+        basearch=$(uname -i)
+        FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\\\$basearch|$basearch|;")
+        
+        # also sles doesnt support CGI params, so fake it with PATH_INFO 
+        # (supported by server-side cgi)
+        FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\?|/|;")
+        
+        # SLES 10 doesnt support mirrorlist, so turn into redirect (support is in 
+        # server-side cgi for this)
+        FULL_URL=${FULL_URL}\&redirect=1\&redir_path=
+        
+        yes | rug service-add -t ZYPP $FULL_URL dell-hw-specific-repository
+        rug subscribe dell-hw-specific-repository
         ;;
     *)
         ;;

@@ -1,4 +1,5 @@
 #!/bin/sh
+# vim:tw=0:ts=4:sw=4:et
 
 DIR=$(cd $(dirname $(readlink -f $0)); pwd)
 PATH=$PATH:$DIR
@@ -15,7 +16,7 @@ movesigned.py -i $INCOMING -o $HWREPO
 
 find $INCOMING \( -name build.log -o -name mockconfig.log -o -name root.log \) -exec rm {} \+ ||:
 
-for i in $( ls -ad $HWREPO/*/platform_independent/* | xargs -n1 readlink -f | sort | uniq )
+for i in $( ls -ad $HWREPO/*/platform_independent/* | xargs -n1 readlink -f | sort | uniq ) $( ls -ad $HWREPO/*/emptyrepo | xargs -n1 readlink -f | sort | uniq )
 do
     echo "process $i"
     rm -f $i/repodata/repomd.xml.*
