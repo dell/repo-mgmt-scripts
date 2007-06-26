@@ -75,6 +75,8 @@ function distro_version()
 	        REDHAT_RELEASE=1
 	    elif (echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep centos-release > /dev/null 2>&1) ; then
 	        REDHAT_RELEASE=1
+	    elif (echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep sl-release > /dev/null 2>&1) ; then
+	        REDHAT_RELEASE=1
 	    fi
     fi
 

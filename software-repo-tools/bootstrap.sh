@@ -55,6 +55,8 @@ function distro_version()
 	    REDHAT_RELEASE=1
 	elif (echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep centos-release > /dev/null 2>&1) ; then
 	    CENTOS_RELEASE=1
+	elif (echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep sl-release > /dev/null 2>&1) ; then
+	    SCIENTIFIC_RELEASE=1
 	elif $(echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep fedora-release > /dev/null 2>&1) ; then
 	    FEDORA_RELEASE=1
 	fi
@@ -78,10 +80,10 @@ function distro_version()
         # format is 3AS, 4AS, 5Desktop...
 	VER=$(echo "${VER}" | sed -e 's/^\([[:digit:]]*\).*/\1/g')
 	dist=el${VER}
-    elif [ -n "${CENTOS_RELEASE}" ]; then
+    elif [ -n "${CENTOS_RELEASE}" -o -n "${SCIENTIFIC_RELEASE}" ]; then
 	VER=$(rpm -q --qf "%{version}\n" ${WHATPROVIDES_REDHAT_RELEASE})
         # format is 3, 4, ...
-	dist=el${VER}
+	dist=el${VER%%\.*}
     elif [ -n "${SLES_RELEASE}" ]; then
 	VER=$(rpm -q --qf "%{version}\n" ${WHATPROVIDES_SLES_RELEASE})
 	dist=sles${VER}
