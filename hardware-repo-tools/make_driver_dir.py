@@ -1,5 +1,5 @@
 #!/usr/bin/python
-# vim:expandtab:autoindent:tabstop=4:shiftwidth=4:filetype=python:
+# vim:expandtab:autoindent:tabstop=4:shiftwidth=4:filetype=python:tw=0:
 
   #############################################################################
   #
@@ -25,6 +25,9 @@
   # ---------------------------------------------------------------
   #
   # version history
+  #     1.2.1   03-June-2007     Michael Brown
+  #         a) drop osname symlinks as mirrors.pl now takes care of this
+  #         b) add repository signatures
   #     1.2.0   11-April-2007     Michael Brown
   #         a) add --yum, --omsa cmdline params
   #         b) add system id symlinks
@@ -75,6 +78,8 @@ usage:
                              only) Requires /usr/bin/createrepo for new format
                              yum repo and /usr/bin/yum-arch for old format yum
                              repo. Will run both binaries if found.
+    -u | --local-user        sign repositories (only useful with --yum)
+         --omsa              extract OMSA and put into repositories as well
          --extract           extract drivers
          --info              provides information about platform/operating
                                system support (default)
@@ -94,7 +99,7 @@ windowsSyntax = "C:\> make_driver_dir -i d:\ -d c:\drv -p pe1855 -o w2003 --extr
 linuxSyntax = "$ ./make_driver_dir.py -i /media/cdrom -d ~/drivers/ -p pe1855 -o rh40 --extract\n"
 
 PROGRAM_NAME="make_driver_dir"
-VERSION="1.2.0"
+VERSION="1.2.1"
 PROGRAM_BANNER="""%s %s
 
 Copyright 2005-2006 Dell Inc.
@@ -104,6 +109,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 # map OMSA RPM directory names to DSA OS dirs to copy to
 OMSA_osList={
+    "RHEL3": ("rh30", "rh30_64",),
     "RHEL4": ("rh40", "rh40_64",),
     "RHEL5": ("rh50", "rh50_64",),
     "SLES9": ("suse9_64",),
@@ -159,10 +165,11 @@ def main():
     action = []
     doYum = 0
     doOmsa=0
+    signingKeyName=None
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hi:d:vqp:o:y", [
-                "help", "input_dir=", "dest_dir=", "platform=", "os=", "verbose", "quiet", "info", "extract", "version", "hardlink", "yum", "omsa",
+        opts, args = getopt.getopt(sys.argv[1:], "hi:d:vqp:o:yu:", [
+                "help", "input_dir=", "dest_dir=", "platform=", "os=", "verbose", "quiet", "info", "extract", "version", "hardlink", "yum", "omsa", "local-user="
             ])
         for option, argument in opts:
             if option in ("-h", "--help"):
@@ -194,6 +201,8 @@ def main():
                 doOmsa=1
             if option in ("-y", "--yum"):
                 doYum=1
+            if option in ("-u", "--local-user"):
+                signingKeyName=argument
             if option in ("--version",):
                 print PROGRAM_BANNER
                 sys.exit(0)
@@ -262,7 +271,7 @@ def main():
                 omsaExtract(oslistIni, action, inputDir, destDir)
 
             if destDir and doYum:
-                doYumRepo(destDir)
+                doYumRepo(destDir, signingKeyName)
 
         except (OSError), e:
             if e.errno == 13: # permission denied
@@ -326,6 +335,8 @@ def omsaExtract(oslistIni, action, inputDir, destDir):
     needCr=0
     for omsa, dsaDirs in OMSA_osList.items():
         omsaRpms = os.path.join(inputDir, "srvadmin", "linux", "RPMS", omsa)
+        if not os.path.exists(omsaRpms): 
+            continue
         omsaMeta = os.path.join(inputDir, "srvadmin", "linux", "RPMS", "supportRPMS", "metaRPMS")
         print "Copying OMSA for OS: %s" % omsa
         firstDest = None
@@ -366,7 +377,7 @@ def omsaExtract(oslistIni, action, inputDir, destDir):
         if verbose>1:
             print "\n" + "="*80
 
-def doYumRepo(destDir):
+def doYumRepo(destDir, keyname = None):
     doCreaterepo = 0
     doYumArch = 0
     if os.path.exists("/usr/bin/createrepo"):
@@ -399,6 +410,21 @@ def doYumRepo(destDir):
                 status = os.system("createrepo %s >/dev/null 2>&1" % repo)
                 if os.WTERMSIG(status) == 2:
                     raise KeyboardInterrupt()
+
+                if keyname:
+                    print "sign ",
+                    sys.stdout.flush
+                    try:
+                        os.unlink( "%s/repodata/repomd.xml.asc" % repo )
+                    except OSError, e:
+                        pass
+                    try:
+                        os.unlink( "%s/repodata/repomd.xml.key" % repo )
+                    except OSError, e:
+                        pass
+                    os.system("gpg --batch --no-tty -u %s -ab %s/repodata/repomd.xml" %  (keyname, repo))
+                    os.system("gpg -o %s/repodata/repomd.xml.key --batch --no-tty -a --export %s" %  (repo, keyname))
+
             if doYumArch:    
                 print "yum-arch", 
                 sys.stdout.flush()
@@ -580,18 +606,6 @@ def getDriversFromDir(oslistIni, action, inputDir, destDir, selectPlatform, sele
                         os.symlink(platform, os.path.join(destDir, "system.ven_%s.dev_%s"%(venid,sysid)))
                     except:
                         pass
-
-            if oslistIni.has_section("osnamemap"):
-                if oslistIni.has_option("osnamemap", opSys):
-                    for linkname in eval(oslistIni.get("osnamemap", opSys)):
-                        try:
-                            os.unlink(os.path.join(destDir, platform, linkname))
-                        except:
-                            pass
-                        try: # not all platforms support symlinks
-                            os.symlink(opSys, os.path.join(destDir, platform, linkname))
-                        except:
-                            pass
 
             #-- Change the read only attributes on the files for window systems so script can be re-run
             if os.name == 'nt':
