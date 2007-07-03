@@ -77,11 +77,35 @@ my %links = (
     el4WS => 'el4',
     el4Desktop => 'el4',
     rhel4 => 'el4',
+    # Centos/Scientific
+    'el4.0' => 'el4',
+    'el4.1' => 'el4',
+    'el4.2' => 'el4',
+    'el4.3' => 'el4',
+    'el4.4' => 'el4',
+    'el4.5' => 'el4',
+    # future variants
+    'el4.6' => 'el4',
+    'el4.7' => 'el4',
+    'el4.8' => 'el4',
+    'el4.9' => 'el4',
 
     # RHEL 5 variants
     el5Client => 'el5',
     el5Server => 'el5',
     rhel5 => 'el5',
+    # CENTOS?
+    'el5.0' => 'el5',
+    # future CENTOS: need a better way to do these...
+    'el5.1' => 'el5',
+    'el5.2' => 'el5',
+    'el5.3' => 'el5',
+    'el5.4' => 'el5',
+    'el5.5' => 'el5',
+    'el5.6' => 'el5',
+    'el5.7' => 'el5',
+    'el5.8' => 'el5',
+    'el5.9' => 'el5',
     );
 
 $osname = $links{$osname} if defined $links{$osname};
