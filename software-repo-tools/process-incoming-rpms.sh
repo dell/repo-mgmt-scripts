@@ -11,7 +11,7 @@ PATH=$PATH:$DIR
 #due to symlinks, dont use /.. here or we wind up in the wrong spot.
 REPO_TOP=$(dirname $DIR)
 
-findunsigned.py -d $REPO_TOP/incoming | xargs -r rpm --define '_signature gpg' --define '_gpg_name libsmbios' --addsign 
+findunsigned.py -d $REPO_TOP/incoming | xargs -r rpmwrap.sh --define '_signature gpg' --define '_gpg_name libsmbios' --addsign 
 movesigned.py -i $REPO_TOP/incoming -o $REPO_TOP/
 find $REPO_TOP/incoming -name \*.log -exec rm {} + 2>/dev/null || :
 find $REPO_TOP/incoming -depth -type d -exec rmdir {} \; 2>/dev/null || :
