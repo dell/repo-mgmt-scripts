@@ -11,7 +11,7 @@ umask 002
 HWREPO=/var/ftp/pub/yum/dell-repo/hardware/
 INCOMING=$HWREPO/incoming/
 
-findunsigned.py -d $INCOMING |  xargs -r rpm --define '_signature gpg' --define '_gpg_name libsmbios' --addsign
+findunsigned.py -d $INCOMING |  xargs -r rpmwrap.sh --define '_signature gpg' --define '_gpg_name libsmbios' --addsign
 movesigned.py -i $INCOMING -o $HWREPO
 
 find $INCOMING \( -name build.log -o -name mockconfig.log -o -name root.log \) -exec rm {} \+ ||:
