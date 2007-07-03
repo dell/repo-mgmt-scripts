@@ -1,4 +1,8 @@
 #!/bin/sh
+# vim:tw=0:et:sw=4:ts=4
+
+#echo "the repository bootstrap is down for maintainance. Please check back in 1 hour."
+#[ -n "$DEBUG" ] || exit 1
 
 # The purpose of this script is to download and install the appropriate 
 # repository RPM. This RPM will set up the Dell yum repositories on your 
@@ -14,17 +18,11 @@
 PUBLIC_SOFTWARE_SERVER="http://linux.dell.com"
 PUBLIC_SOFTWARE_REPO_URL="/repo/software"
 
-PUBLIC_HARDWARE_SERVER="http://linux.dell.com"
-PUBLIC_HARDWARE_REPO_URL="/repo/hardware"
-
 # these two variables are replaced by the perl script 
 # with the actual server name and directory. This is useful for
 # mirroring
 SOFTWARE_SERVER="http://linux.dell.com"
 SOFTWARE_REPO_URL="/repo/software"
-
-HARDWARE_SERVER="http://linux.dell.com"
-HARDWARE_REPO_URL="/repo/software"
 
 GPG_KEY[0]=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/RPM-GPG-KEY-dell
 GPG_KEY[1]=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/RPM-GPG-KEY-libsmbios
@@ -33,8 +31,8 @@ GPG_KEY[1]=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/RPM-GPG-KEY-libsmbios
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="22-0"
-REPO_NAME="dell"
+REPO_RPM_VER="1-1"
+REPO_NAME="dell-unsupported"
 
 
 ##############################################################################
@@ -43,6 +41,32 @@ REPO_NAME="dell"
 
 #set -e
 #set -x
+
+function write_mirror_cfg() 
+{
+  if [ -e /etc/dell-mirror.cfg ]; then
+    # remove any old entries
+    perl -n -i -e "print if ! /^SOFTWARE_SERVER/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^SOFTWARE_REPO_URL/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^PUBLIC_SOFTWARE_SERVER/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^PUBLIC_SOFTWARE_REPO_URL/;" /etc/dell-mirror.cfg
+  fi
+
+  # Mirror mode
+  if [ "$PUBLIC_SOFTWARE_REPO_URL" != "$SOFTWARE_REPO_URL" -o "$PUBLIC_SOFTWARE_SERVER" != "$SOFTWARE_SERVER" ]; then
+    # update yum conf
+    echo "activating mirror mode:"
+    echo "  $PUBLIC_SOFTWARE_REPO_URL != $SOFTWARE_REPO_URL"
+    echo "    or"
+    echo "  $PUBLIC_SOFTWARE_SERVER != $SOFTWARE_SERVER"
+
+    echo "SOFTWARE_SERVER=$SOFTWARE_SERVER" >> /etc/dell-mirror.cfg
+    echo "SOFTWARE_REPO_URL=$SOFTWARE_REPO_URL" >> /etc/dell-mirror.cfg
+
+    echo "PUBLIC_SOFTWARE_SERVER=$PUBLIC_SOFTWARE_SERVER" >> /etc/dell-mirror.cfg
+    echo "PUBLIC_SOFTWARE_REPO_URL=$PUBLIC_SOFTWARE_REPO_URL" >> /etc/dell-mirror.cfg
+  fi
+}
 
 function distro_version()
 {
@@ -117,11 +141,17 @@ while [ $i -lt ${#GPG_KEY[*]} ]; do
     wget -q -O GPG-KEY ${GPG_KEY[$i]}
     echo "    Importing key into RPM."
     rpm --import GPG-KEY
+    if [ $? -ne 0 ]; then
+        echo "GPG-KEY import failed."
+        echo "   Either there was a problem downloading the key,"
+        echo "   or you do not have sufficient permissions to import the key."
+        exit 1
+    fi
     i=$(( $i + 1 ))
 done
 
 # try new path
-RPMPATH=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/$(uname -i)/dell-repository/${REPO_RPM_VER}/noarch/${REPO_RPM}
+RPMPATH=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/$(uname -i)/${REPO_NAME}-repository/${REPO_RPM_VER}/${REPO_RPM}
 wget -q -N ${RPMPATH}
 if [ ! -e ${REPO_RPM} ]; then
     echo "Failed to download RPM: ${RPMPATH}"
@@ -134,43 +164,36 @@ if [ "$CHECK_REPO_SIGNATURE" = "1" ]; then
     [ $? -ne 0 ] && echo "Failed ${REPO_RPM} GPG check!" && exit 1 
 fi
 
+# write mirror cfg before installing repo rpm
+write_mirror_cfg
+
 echo "Installing ${REPO_RPM}"
 rpm -U ${REPO_RPM} > /dev/null 2>&1
 
-# Mirror mode
-if [ "$PUBLIC_SOFTWARE_REPO_URL" != "$SOFTWARE_REPO_URL" -o "$PUBLIC_SOFTWARE_SERVER" != "$SOFTWARE_SERVER" ]; then
-    # update yum conf
-    echo "activating mirror mode:"
-    echo "  $PUBLIC_SOFTWARE_REPO_URL != $SOFTWARE_REPO_URL"
-    echo "    or"
-    echo "  $PUBLIC_SOFTWARE_SERVER != $SOFTWARE_SERVER"
-    rm -f /etc/dell-mirror.cfg 2>/dev/null
-    echo "SOFTWARE_SERVER=$SOFTWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "SOFTWARE_REPO_URL=$SOFTWARE_REPO_URL" >> /etc/dell-mirror.cfg
+case $dist in
+    sles10)
+        #hw indep setup
+        FULL_URL=$(grep ^mirrorlist= /etc//yum.repos.d/dell-unsupported-repository.repo | cut -d= -f2- )
+        # no vars in SLES, need to replace $basearch
+        basearch=$(uname -i)
+        FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\\\$basearch|$basearch|;")
 
-    echo "HARDWARE_SERVER=$HARDWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "HARDWARE_REPO_URL=$HARDWARE_REPO_URL" >> /etc/dell-mirror.cfg
+        # also sles doesnt support CGI params, so fake it with PATH_INFO 
+        # (supported by server-side cgi)
+        FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\?|/|;")
 
-    echo "PUBLIC_SOFTWARE_SERVER=$PUBLIC_SOFTWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "PUBLIC_SOFTWARE_REPO_URL=$PUBLIC_SOFTWARE_REPO_URL" >> /etc/dell-mirror.cfg
+        # SLES 10 doesnt support mirrorlist, so turn into redirect (support is in 
+        # server-side cgi for this)
+        FULL_URL=${FULL_URL}\&redirect=1\&redir_path=
 
-    echo "PUBLIC_HARDWARE_SERVER=$PUBLIC_HARDWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "PUBLIC_HARDWARE_REPO_URL=$PUBLIC_HARDWARE_REPO_URL" >> /etc/dell-mirror.cfg
+        yes | rug service-add -t ZYPP ${FULL_URL} dell-unsupported-repository
+        rug subscribe dell-unsupported-repository
+        ;;
 
-    perl -p -i -e "s|$PUBLIC_SOFTWARE_REPO_URL|$SOFTWARE_REPO_URL|g;" /etc/yum.repos.d/dell.repo 
-    perl -p -i -e "s|$PUBLIC_SOFTWARE_SERVER|$SOFTWARE_SERVER|g;" /etc/yum.repos.d/dell.repo
-
-    # update rhn sources
-    RHN=/etc/sysconfig/rhn/sources
-    if [ -e $RHN ]; then
-        perl -p -i -e "s|^(^yum dell-software.*)$PUBLIC_SOFTWARE_REPO_URL|\$1$SOFTWARE_REPO_URL|g;" $RHN
-        perl -p -i -e "s|^(^yum dell-software.*)$PUBLIC_SOFTWARE_SERVER|\$1$SOFTWARE_SERVER|g;" $RHN
-        perl -p -i -e "s|^(^yum-mirror dell-software.*)$PUBLIC_SOFTWARE_REPO_URL|\$1$SOFTWARE_REPO_URL|g;" $RHN
-        perl -p -i -e "s|^(^yum-mirror dell-software.*)$PUBLIC_SOFTWARE_SERVER|\$1$SOFTWARE_SERVER|g;" $RHN
-    fi
-else
-    rm -f /etc/dell-mirror.cfg 2>/dev/null
-fi
+    *)
+        :
+        ;;
+esac
 
 echo "Done!"
 exit 0
