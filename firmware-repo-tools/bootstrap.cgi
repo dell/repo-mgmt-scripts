@@ -23,7 +23,7 @@ if ($server_name eq "linux.dell.com") {
 }
 
 my $fd;
-open $fd, "$thisdir/.bootstrap.sh" or die "#oops...";
+open $fd, "$thisdir/_tools/bootstrap.sh" or die "#oops...";
 while(<$fd>)
 {
     s|^FIRMWARE_SERVER=.*|FIRMWARE_SERVER="http://$server_name"|;
