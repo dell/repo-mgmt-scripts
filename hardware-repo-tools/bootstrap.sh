@@ -1,6 +1,9 @@
 #!/bin/sh
 # vim:et:tw=0:ts=4:sw=4:filetype=sh
 
+#echo "The repository is undergoing maintenance now. Please check back in an hour."
+#exit 1
+
 # The purpose of this script is to download and install the appropriate 
 # repository RPM. This RPM will set up the Dell yum repositories on your 
 # system. This script will also install the Dell GPG keys used to sign 
@@ -28,7 +31,7 @@ GPG_KEY[1]=${HARDWARE_SERVER}/${HARDWARE_REPO_URL}/RPM-GPG-KEY-libsmbios
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="1-10"
+REPO_RPM_VER="1-11"
 REPO_NAME="dell-hw-indep"
 
 ##############################################################################
