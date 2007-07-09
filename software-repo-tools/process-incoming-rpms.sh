@@ -41,7 +41,7 @@ do
 
     echo "process $i"
     rm -f $i/repodata/repomd.xml.*
-    [ -e /usr/bin/createrepo ] && createrepo --checkts --update -d $i
+    createrepo --checkts --update -d $i
 
     # only generate old-style metadata for things that need it.
     case $(basename $i) in
