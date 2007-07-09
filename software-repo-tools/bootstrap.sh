@@ -9,23 +9,24 @@
 # system. This script will also install the Dell GPG keys used to sign 
 # Dell RPMS.
 
-# If you wish to mirror the Dell yum repository, you need to:
-#   --> ask me to redo these instructions, because I just made it a lot easier. :)
+# to mirror this repo, see the wiki pages.
 
 # These two variables are used to see if the perl script changed
 # SERVER and REPO_URL inline. If the perl script changes these, 
 # it activates private mirror mode and modifies the repos.
-PUBLIC_SOFTWARE_SERVER="http://linux.dell.com"
-PUBLIC_SOFTWARE_REPO_URL="/repo/software"
+PUBLIC_SERVER="http://linux.dell.com"
+PUBLIC_REPO_URL="/repo/software"
 
 # these two variables are replaced by the perl script 
 # with the actual server name and directory. This is useful for
 # mirroring
-SOFTWARE_SERVER="http://linux.dell.com"
-SOFTWARE_REPO_URL="/repo/software"
+SERVER="http://linux.dell.com"
+REPO_URL="/repo/software"
 
-GPG_KEY[0]=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/RPM-GPG-KEY-dell
-GPG_KEY[1]=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/RPM-GPG-KEY-libsmbios
+REPO_ID=SOFTWARE
+
+GPG_KEY[0]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-dell
+GPG_KEY[1]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-libsmbios
 #GPG_KEY[3]=URL_OF_ADDITIONAL_GPG_KEYS_unless_not_using
 
 # change to 0 to disable check of repository RPM sig.
@@ -46,75 +47,68 @@ function write_mirror_cfg()
 {
   if [ -e /etc/dell-mirror.cfg ]; then
     # remove any old entries
-    perl -n -i -e "print if ! /^SOFTWARE_SERVER/;" /etc/dell-mirror.cfg
-    perl -n -i -e "print if ! /^SOFTWARE_REPO_URL/;" /etc/dell-mirror.cfg
-    perl -n -i -e "print if ! /^PUBLIC_SOFTWARE_SERVER/;" /etc/dell-mirror.cfg
-    perl -n -i -e "print if ! /^PUBLIC_SOFTWARE_REPO_URL/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^${REPO_ID}_SERVER/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^${REPO_ID}_REPO_URL/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^PUBLIC_${REPO_ID}_SERVER/;" /etc/dell-mirror.cfg
+    perl -n -i -e "print if ! /^PUBLIC_${REPO_ID}_REPO_URL/;" /etc/dell-mirror.cfg
   fi
 
   # Mirror mode
-  if [ "$PUBLIC_SOFTWARE_REPO_URL" != "$SOFTWARE_REPO_URL" -o "$PUBLIC_SOFTWARE_SERVER" != "$SOFTWARE_SERVER" ]; then
+  if [ "$PUBLIC_REPO_URL" != "$REPO_URL" -o "$PUBLIC_SERVER" != "$SERVER" ]; then
     # update yum conf
     echo "activating mirror mode:"
-    echo "  $PUBLIC_SOFTWARE_REPO_URL != $SOFTWARE_REPO_URL"
-    echo "    or"
-    echo "  $PUBLIC_SOFTWARE_SERVER != $SOFTWARE_SERVER"
+    echo "  $PUBLIC_REPO_URL != $REPO_URL"
+    echo "    and/or"
+    echo "  $PUBLIC_SERVER != $SERVER"
 
-    echo "SOFTWARE_SERVER=$SOFTWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "SOFTWARE_REPO_URL=$SOFTWARE_REPO_URL" >> /etc/dell-mirror.cfg
+    echo "${REPO_ID}_SERVER=$SERVER" >> /etc/dell-mirror.cfg
+    echo "${REPO_ID}_REPO_URL=$REPO_URL" >> /etc/dell-mirror.cfg
 
-    echo "PUBLIC_SOFTWARE_SERVER=$PUBLIC_SOFTWARE_SERVER" >> /etc/dell-mirror.cfg
-    echo "PUBLIC_SOFTWARE_REPO_URL=$PUBLIC_SOFTWARE_REPO_URL" >> /etc/dell-mirror.cfg
+    echo "PUBLIC_${REPO_ID}_SERVER=$PUBLIC_SERVER" >> /etc/dell-mirror.cfg
+    echo "PUBLIC_${REPO_ID}_REPO_URL=$PUBLIC_REPO_URL" >> /etc/dell-mirror.cfg
   fi
 }
 
 function distro_version()
 {
-# What distribution are we running?
+    # What distribution are we running?
     dist=unknown
     [ ! -e /bin/rpm ] && echo "$dist" && return
-    WHATPROVIDES_REDHAT_RELEASE=$(rpm -q --whatprovides redhat-release | tail -n1)
-    if [ $? -eq 0 ]; then
-	if $(echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep redhat-release > /dev/null 2>&1) ; then
-	    REDHAT_RELEASE=1
-	elif (echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep centos-release > /dev/null 2>&1) ; then
-	    CENTOS_RELEASE=1
-	elif (echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep sl-release > /dev/null 2>&1) ; then
-	    SCIENTIFIC_RELEASE=1
-	elif $(echo "${WHATPROVIDES_REDHAT_RELEASE}" | grep fedora-release > /dev/null 2>&1) ; then
-	    FEDORA_RELEASE=1
-	fi
-    fi
-
-    WHATPROVIDES_SLES_RELEASE=$(rpm -q --whatprovides sles-release | tail -n1)
-    if [ $? -eq 0 ]; then
-	SLES_RELEASE=1
-    fi
-
-    WHATPROVIDES_SUSE_RELEASE=$(rpm -q --whatprovides suse-release | tail -n1)
-    if [ $? -eq 0 ]; then
-	SUSE_RELEASE=1
+    if rpm -q --whatprovides redhat-release >/dev/null 2>&1; then
+        DISTRO_REL_RPM=$(rpm -q --whatprovides redhat-release 2>/dev/null | tail -n1)
+	    if $(echo "${DISTRO_REL_RPM}" | grep redhat-release > /dev/null 2>&1) ; then
+	        REDHAT_RELEASE=1
+	    elif (echo "${DISTRO_REL_RPM}" | grep centos-release > /dev/null 2>&1) ; then
+	        REDHAT_RELEASE=1
+	    elif (echo "${DISTRO_REL_RPM}" | grep sl-release > /dev/null 2>&1) ; then
+	        REDHAT_RELEASE=1
+	    elif $(echo "${DISTRO_REL_RPM}" | grep fedora-release > /dev/null 2>&1) ; then
+	        FEDORA_RELEASE=1
+	    fi
+    elif rpm -q --whatprovides sles-release >/dev/null 2>&1; then
+        DISTRO_REL_RPM=$(rpm -q --whatprovides sles-release 2>/dev/null | tail -n1)
+	    SLES_RELEASE=1
+    elif rpm -q --whatprovides suse-release >/dev/null 2>&1; then
+        DISTRO_REL_RPM=$(rpm -q --whatprovides suse-release 2>/dev/null | tail -n1)
+	    SUSE_RELEASE=1
     fi
 
     if [ -n "${FEDORA_RELEASE}" ]; then
-	VER=$(rpm -q --qf "%{version}\n" ${WHATPROVIDES_REDHAT_RELEASE})
-	dist=fc${VER}
+	    VER=$(rpm -q --qf "%{version}\n" ${DISTRO_REL_RPM})
+	    dist=fc${VER}
     elif [ -n "${REDHAT_RELEASE}" ]; then
-	VER=$(rpm -q --qf "%{version}\n" ${WHATPROVIDES_REDHAT_RELEASE})
-        # format is 3AS, 4AS, 5Desktop...
-	VER=$(echo "${VER}" | sed -e 's/^\([[:digit:]]*\).*/\1/g')
-	dist=el${VER}
-    elif [ -n "${CENTOS_RELEASE}" -o -n "${SCIENTIFIC_RELEASE}" ]; then
-	VER=$(rpm -q --qf "%{version}\n" ${WHATPROVIDES_REDHAT_RELEASE})
-        # format is 3, 4, ...
-	dist=el${VER%%\.*}
+	    VER=$(rpm -q --qf "%{version}\n" ${DISTRO_REL_RPM})
+        # RedHat: format is 3AS, 4AS, 5Desktop... strip off al alpha chars
+        # Centos/SL: format is 4.1, 5.1, 5.2, ... strip off .X chars
+	    dist=el${VER%%[.a-zA-Z]*}
     elif [ -n "${SLES_RELEASE}" ]; then
-	VER=$(rpm -q --qf "%{version}\n" ${WHATPROVIDES_SLES_RELEASE})
-	dist=sles${VER}
+	    VER=$(rpm -q --qf "%{version}\n" ${DISTRO_REL_RPM})
+	    dist=sles${VER}
     elif [ -n "${SUSE_RELEASE}" ]; then
-	VER=$(rpm -q --qf "%{version}\n" ${WHATPROVIDES_SUSE_RELEASE})
-	dist=suse${VER}
+	    VER=$(rpm -q --qf "%{version}\n" ${DISTRO_REL_RPM})
+	    dist=suse${VER}
     fi
+
     echo "$dist"
 }
 
@@ -150,14 +144,15 @@ while [ $i -lt ${#GPG_KEY[*]} ]; do
     i=$(( $i + 1 ))
 done
 
-# try new path
-RPMPATH=${SOFTWARE_SERVER}/${SOFTWARE_REPO_URL}/${dist}/$(uname -i)/${REPO_NAME}-repository/${REPO_RPM_VER}/${REPO_RPM}
-wget -q -N ${RPMPATH}
+# download repo rpm
+basearch=$(uname -i)
+ACTUAL_REPO_URL=$(wget -q -O- ${SERVER}/${REPO_URL}/mirrors.pl?osname=${dist}\&basearch=$basearch | head -n1)
+RPM_URL=${ACTUAL_REPO_URL}/${REPO_NAME}-repository/${REPO_RPM_VER}/$REPO_RPM
+wget -q -N ${RPM_URL}
 if [ ! -e ${REPO_RPM} ]; then
-    echo "Failed to download RPM: ${RPMPATH}"
+    echo "Failed to download RPM: ${RPM_URL}"
     exit 1
 fi
-
 
 if [ "$CHECK_REPO_SIGNATURE" = "1" ]; then
     rpm -K ${REPO_RPM} > /dev/null 2>&1
