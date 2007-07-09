@@ -1,3 +1,2 @@
-0 0 * * 0  /var/ftp/pub/yum/dell-repo/scripts/repo-mgmt/cleanup-plague.sh > /dev/null 2>&1
 0 1 * * *  /usr/bin/yum -y upgrade > /dev/null 2>&1
 

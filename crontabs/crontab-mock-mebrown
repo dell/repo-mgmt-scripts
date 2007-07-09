@@ -1,3 +1,0 @@
-MAILTO=michael_e_brown@dell.com
-
-50 * * * * /var/ftp/pub/yum/dell-repo/scripts/repo-mgmt/check-plague.sh
