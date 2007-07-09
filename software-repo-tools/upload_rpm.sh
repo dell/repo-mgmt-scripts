@@ -4,6 +4,7 @@
 set -e
 
 DIR=$(cd $(dirname $0); pwd)
+PATH=$PATH:$DIR
 
 . $DIR/repo.cfg
 
@@ -40,3 +41,6 @@ while [ $i -lt ${#REPO[*]} ]; do
     i=$(( $i + 1 ))
 done
 
+rm -rf /var/lib/mock/*-$RPM_NAME
+
+process-incoming-rpms.sh
