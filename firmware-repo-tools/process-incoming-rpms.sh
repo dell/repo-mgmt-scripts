@@ -22,6 +22,7 @@ do
 
     echo "process $i"
     rm -f $i/repodata/repomd.xml.*
+    repomanage -o $i | xargs -r rm
     createrepo --checkts --update -d $i
     [ -e /usr/bin/yum-arch ] && yum-arch $i
 
