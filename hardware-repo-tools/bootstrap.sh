@@ -146,7 +146,7 @@ done
 # download repo rpm
 basearch=$(uname -i)
 ACTUAL_REPO_URL=$(wget -q -O- ${SERVER}/${REPO_URL}/mirrors.pl?osname=${dist}\&basearch=$basearch | head -n1)
-RPM_URL=${ACTUAL_REPO_URL}/$basearch/${REPO_NAME}-repository/${REPO_RPM_VER}/$REPO_RPM
+RPM_URL=${ACTUAL_REPO_URL}/${REPO_NAME}-repository/${REPO_RPM_VER}/$REPO_RPM
 wget -q -N ${RPM_URL}
 if [ ! -e ${REPO_RPM} ]; then
     echo "Failed to download RPM: ${RPM_URL}"
