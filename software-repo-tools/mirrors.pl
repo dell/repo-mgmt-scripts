@@ -5,6 +5,13 @@ use CGI;
 use CGI::Carp qw(warningsToBrowser fatalsToBrowser);
 my $cgi = new CGI;
 
+# to support sles, which cannot send a query string, uses PATH_INFO instead.
+if (not $ENV{"QUERY_STRING"}) {
+    use lib "_tools";
+    use PathInfo;
+    $cgi = CGI::PathInfo->new({  Eq => '=', SplitOn => '&', });
+}
+
 use File::Basename;
 use Cwd 'abs_path';     # aka realpath()
 

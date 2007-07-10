@@ -1,0 +1,1 @@
+../repo-mgmt/rpmwrap.sh

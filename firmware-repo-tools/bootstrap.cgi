@@ -26,8 +26,8 @@ my $fd;
 open $fd, "$thisdir/_tools/bootstrap.sh" or die "#oops...";
 while(<$fd>)
 {
-    s|^FIRMWARE_SERVER=.*|FIRMWARE_SERVER="http://$server_name"|;
-    s|^FIRMWARE_REPO_URL=.*|FIRMWARE_REPO_URL="$firmware_repo"|;
+    s|^SERVER=.*|SERVER="http://$server_name"|;
+    s|^REPO_URL=.*|REPO_URL="$firmware_repo"|;
     print $_;
 }
 close($fd);

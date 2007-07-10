@@ -10,26 +10,23 @@ PATH=$PATH:$DIR
 
 # dont use '..' here or symlinks mess us up.
 REPO_TOPDIR=$(dirname $DIR)
-WHICH_REPO=$1
-SRPM=$2
 
-if [ -z "$WHICH_REPO" -o ! -e "$SRPM" ]; then
-    echo "missing params"
-    echo " upload_rpm.sh repo srpm"
+SRPM=$1
+
+if [ ! -e "$SRPM" ]; then
+    echo "Usage:"
+    echo " upload_rpm.sh  package.src.rpm"
     exit 1
 fi
 
-REPO_PATH=$REPO_TOPDIR/incoming/$WHICH_REPO/platform_independent/
+REPO_PATH=$REPO_TOPDIR/incoming/
 RPM_NAME=$(rpm -qp --qf "%{name}" $SRPM)
 RPM_VER=$(rpm -qp --qf "%{version}-%{release}" $SRPM)
 
 i=0
 while [ $i -lt ${#REPO[*]} ]; do
-    # the repo names contain arch info, so no need to re-encode in path
-    #OUTDIR=$REPO_PATH/${REPO[$i]}/${REPO_ARCH[$i]}/$RPM_NAME/$RPM_VER/
     OUTDIR=$REPO_PATH/${REPO[$i]}/$RPM_NAME/$RPM_VER/
-
-    OUTRPM=$( ls $OUTDIR/*.rpm 2>/dev/null | grep -v src.rpm | head -n1 )
+    OUTRPM=$( ls $OUTDIR/*.rpm 2>/dev/null | head -n1 )
     if [ -e "$OUTRPM" ]; then
         echo "skipping build for ${REPO[$i]} using ${REPO_CFG[$i]} because output RPM already exists."
         i=$(( $i + 1 ))
@@ -46,4 +43,4 @@ done
 
 rm -rf /var/lib/mock/*-$RPM_NAME
 
-process-incoming-rpm.sh
+process-incoming-rpms.sh

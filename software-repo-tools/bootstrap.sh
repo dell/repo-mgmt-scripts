@@ -1,8 +1,8 @@
 #!/bin/sh
 # vim:tw=0:et:sw=4:ts=4
 
-#echo "the repository bootstrap is down for maintainance. Please check back in 1 hour."
-#[ -n "$DEBUG" ] || exit 1
+echo "the repository bootstrap is down for maintainance. Please check back in 1 hour."
+[ -n "$DEBUG" ] || exit 1
 
 # The purpose of this script is to download and install the appropriate 
 # repository RPM. This RPM will set up the Dell yum repositories on your 
@@ -32,7 +32,7 @@ GPG_KEY[1]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-libsmbios
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="1-1"
+REPO_RPM_VER="1-2"
 REPO_NAME="dell-unsupported"
 
 
