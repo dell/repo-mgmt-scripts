@@ -84,6 +84,9 @@ if (-d ($thisdir . "/$osname/$basearch")) {
 elsif (-d ($thisdir . "/$osname")) {
     $url = "http://$server_name/$base_web_path/$osname";
 }
+else {
+    $url = "http://$server_name/$base_web_path/cross-distro";
+}
 
 
 if ($redirect){
