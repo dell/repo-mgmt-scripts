@@ -43,10 +43,15 @@ $dev_id = sanitize_id($dev_id);
 my $osname = $cgi->param('osname') || "null_OS";
 my $basearch = $cgi->param('basearch') || "null_basearch";
 # backwards compat to old-style
-if($osname =~ m|^(\w+)\.(\w+)$|)
+if($osname =~ m|^(\w+)\.i386$|)
 {
     $osname = $1;
-    $basearch = $2;
+    $basearch = "i386";
+}
+if($osname =~ m|^(\w+)\.x86_64$|)
+{
+    $osname = $1;
+    $basearch = "x86_64";
 }
 
 my $repo_config = $cgi->param('repo_config') || "latest";
