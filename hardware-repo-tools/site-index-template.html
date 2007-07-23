@@ -4,7 +4,7 @@
 
 <head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"> 
 
-<title>UNOFFICIAL Dell yum package repository</title> 
+<title>Dell hardware repository</title> 
 
 <link href="_tools/README.css" rel="stylesheet" type="text/css"> 
 
@@ -12,12 +12,12 @@
 
 <body> 
 
-<h1><i>Unofficial</i> Dell System-Specific Linux yum repository</h1>
+<h1>Dell System-Specific Linux repository, <i>aka: Hardware Repository</i></h1>
 
 <h2>What is this?</h2> 
 
 <p>Please see the detailed description in the Linux Wiki: 
-<a href="http://linux.dell.com/wiki/index.php/Repository/hardware">Linux yum hardware repository</a>
+<a href="http://linux.dell.com/wiki/index.php/Repository/hardware">Dell Linux hardware repository</a>
 
 <h2>How to set up</h2>
 
@@ -123,42 +123,19 @@ in the wiki for more information.
 
 
 <h2>Support</h2>
-This is the not-quite-official Dell yum package repository. 
-Note that this repository is not officially Dell-supported. 
+This is the Dell hardware repository. 
+Note that this repository is supported based on community support only.
 For support questions related to this package repository, please use the appropriate mailing list:
 <ul>
     <li>For OMSA questions: <a
 href="http://lists.us.dell.com/mailman/listinfo/linux-poweredge">linux-poweredge</a>.
 Note that the OMSA software in this repository is 100% official and Dell
 supported, but the yum distribution method via this specific repository is
-not-quite-official. There is no support for this yum repo, no warranty of any
+community-support only. There is no support for this yum repo, no warranty of any
 kind, nor any SLA for outages in this yum repo. Please monitor the mailing list
 for status messages and announcements concerning this repository.</li>
 </ul>
 Do not call Dell Technical support with questions about this repository, as they will not be able to help you! For all questions, please use the mailing lists above.
-
-<H2>Local Mirrors of this site</h2>
-If you wish to mirror this site to a server inside your firewall,
-please be aware that rsync is not available on this server.  We
-recommend using the 'reposync' application which is included in the <a
-href="http://linux.duke.edu/yum/download/yum-utils/">yum-utils</a>
-package of the <a href="http://fedoraproject.org">Fedora Project</a>.
-You may also be interested in <a
-href="http://fedoraproject.org/wiki/Projects/fedora-mirror">fedora-mirror</a>
-for maintaining your own mirror of the Fedora packages when rsync
-isn't possible for you.
-
-<p><b>COMING SOON:</b> we have rsync access on the way! Mailing list
-announcement will follow. We expect this to be opened up within a few weeks.
-
-<h2>how to recreate this repo</h2> 
-
-<p>Everything that was was used to create this repo is publicly available. You
-need a copy of the latest DSA CD. This repo was created with some modified tools
-that are already on the DSA CD. These modifications have been sent to the DSA
-team and will be available in a future DSA version. The <a
-href="./_tools">_tools</a> subdirectory contains the modified copies of these
-tools, plus configuration files. The readme.txt file describes the process.</p>
 
 
 <h2>WARNING</h2>
