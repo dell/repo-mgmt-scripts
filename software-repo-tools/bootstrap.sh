@@ -1,8 +1,8 @@
 #!/bin/sh
 # vim:tw=0:et:sw=4:ts=4
 
-echo "the repository bootstrap is down for maintainance. Please check back in 1 hour."
-[ -n "$DEBUG" ] || exit 1
+#echo "the repository bootstrap is down for maintainance. Please check back in 1 hour."
+#[ -n "$DEBUG" ] || exit 1
 
 # The purpose of this script is to download and install the appropriate 
 # repository RPM. This RPM will set up the Dell yum repositories on your 
@@ -32,7 +32,7 @@ GPG_KEY[1]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-libsmbios
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="1-2"
+REPO_RPM_VER="1-3"
 REPO_NAME="dell-unsupported"
 
 
@@ -133,6 +133,21 @@ while [ $i -lt ${#GPG_KEY[*]} ]; do
     echo "Downloading GPG key: ${GPG_KEY[$i]}"
     rm GPG-KEY > /dev/null 2>&1 || true
     wget -q -O GPG-KEY ${GPG_KEY[$i]}
+    email=$(gpg -v GPG-KEY 2>/dev/null  | grep 1024D | perl -p -i -e 's/.*<(.*)>/\1/')
+    HAVE_KEY=0
+    for key in $(rpm -qa | grep gpg-pubkey)
+    do
+        if rpm -qi $key | grep -q "^Summary.*$email"; then 
+            HAVE_KEY=1; 
+            break; 
+        fi
+    done
+    if [ $HAVE_KEY = 1 ]; then
+        i=$(( $i + 1 ))
+        echo "    Key already exists in RPM, skipping"
+        continue
+    fi
+
     echo "    Importing key into RPM."
     rpm --import GPG-KEY
     if [ $? -ne 0 ]; then
@@ -168,7 +183,7 @@ rpm -U ${REPO_RPM} > /dev/null 2>&1
 case $dist in
     sles10)
         #hw indep setup
-        FULL_URL=$(grep ^mirrorlist= /etc//yum.repos.d/dell-unsupported-repository.repo | cut -d= -f2- )
+        FULL_URL=$(grep ^mirrorlist= /etc//yum.repos.d/dell-unsupported-repository.repo | cut -d= -f2- | head -n1)
         # no vars in SLES, need to replace $basearch
         basearch=$(uname -i)
         FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\\\$basearch|$basearch|;")

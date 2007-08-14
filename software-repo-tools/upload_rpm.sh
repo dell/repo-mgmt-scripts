@@ -26,7 +26,7 @@ RPM_VER=$(rpm -qp --qf "%{version}-%{release}" $SRPM)
 i=0
 while [ $i -lt ${#REPO[*]} ]; do
     OUTDIR=$REPO_PATH/${REPO[$i]}/${REPO_ARCH[$i]}/$RPM_NAME/$RPM_VER/
-    OUTRPM=$( ls $OUTDIR/*.rpm 2>/dev/null | head -n1 )
+    OUTRPM=$( ls $OUTDIR/*.rpm 2>/dev/null | grep -v src.rpm | head -n1 )
     if [ -e "$OUTRPM" ]; then
         echo "skipping build for ${REPO[$i]} using ${REPO_CFG[$i]} because output RPM already exists."
         i=$(( $i + 1 ))

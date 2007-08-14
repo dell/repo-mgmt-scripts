@@ -21,7 +21,7 @@ do
     echo "process $i"
     rm -f $i/repodata/repomd.xml.*
     repomanage -o $i | xargs -r rm
-    createrepo --checkts -d --update $i
+    createrepo -d $i
 
     # only generate old-style metadata for things that need it.
     case $(basename $(dirname $i)) in

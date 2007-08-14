@@ -1,8 +1,8 @@
 #!/bin/sh
 # vim:tw=0:et:sw=4:ts=4
 
-echo "the repository bootstrap is down for maintainance. Please check back in 1 hour."
-[ -n "$DEBUG" ] || exit 1
+#echo "the repository bootstrap is down for maintainance. Please check back in 1 hour."
+#[ -n "$DEBUG" ] || exit 1
 
 # The purpose of this script is to download and install the appropriate 
 # repository RPM. This RPM will set up the Dell yum repositories on your 
@@ -14,14 +14,22 @@ echo "the repository bootstrap is down for maintainance. Please check back in 1 
 # These two variables are used to see if the perl script changed
 # SERVER and REPO_URL inline. If the perl script changes these, 
 # it activates private mirror mode and modifies the repos.
-PUBLIC_SERVER="http://repo.fwupdate.com"
+PUBLIC_SERVER="http://linux.dell.com"
 PUBLIC_REPO_URL="/repo/firmware"
 
 # these two variables are replaced by the perl script 
 # with the actual server name and directory. This is useful for
 # mirroring
-SERVER="http://repo.fwupdate.com"
+SERVER="http://linux.dell.com"
 REPO_URL="/repo/firmware"
+
+#the SERVER variable is transparently replaced by the cgi script
+# so this could actually be different
+if [ "$SERVER" = "http://repo.fwupdate.com" ]; then
+    echo "fwupdate.com is now deprecated."
+    echo "go to http://linux.dell.com/repo/firmware for the firmware repo"
+    exit 1
+fi
 
 REPO_ID=FIRMWARE
 
@@ -31,8 +39,8 @@ GPG_KEY[0]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-fwupdate
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="16-0"
-REPO_NAME="fwupdate"
+REPO_RPM_VER="1-2"
+REPO_NAME="dell-firmware"
 
 
 ##############################################################################
