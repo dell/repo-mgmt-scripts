@@ -20,8 +20,9 @@ for i in $( ls -ad $HWREPO/*/platform_independent/* | xargs -n1 readlink -f | so
 do
     echo "process $i"
     rm -f $i/repodata/repomd.xml.*
+    rm -rf $i/headers
     repomanage -o $i | xargs -r rm
-    createrepo --checkts -d --update $i
+    createrepo -d --update $i
 
     # only generate old-style metadata for things that need it.
     case $(basename $i) in

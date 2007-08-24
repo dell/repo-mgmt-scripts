@@ -33,13 +33,14 @@ fi
 
 REPO_ID=FIRMWARE
 
-GPG_KEY[0]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-fwupdate
+# packages are now signed by libsmbios key which should already be installed
+#GPG_KEY[0]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-fwupdate
 #GPG_KEY[3]=URL_OF_ADDITIONAL_GPG_KEYS_unless_not_using
 
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="1-2"
+REPO_RPM_VER="1-4"
 REPO_NAME="dell-firmware"
 
 
@@ -175,7 +176,7 @@ rpm -U ${REPO_RPM} > /dev/null 2>&1
 case $dist in
     sles10)
         #hw indep setup
-        FULL_URL=$(grep ^mirrorlist= /etc//yum.repos.d/fwupdate-repository.repo | cut -d= -f2- )
+        FULL_URL=$(grep ^mirrorlist= /etc//yum.repos.d/dell-firmware-repository.repo | cut -d= -f2- )
         # no vars in SLES, need to replace $basearch
         basearch=$(uname -i)
         FULL_URL=$(echo $FULL_URL | perl -p -i -e "s|\\\$basearch|$basearch|;")
@@ -188,8 +189,8 @@ case $dist in
         # server-side cgi for this)
         FULL_URL=${FULL_URL}\&redirect=1\&redir_path=
 
-        yes | rug service-add -t ZYPP ${FULL_URL} fwupdate-repository
-        rug subscribe fwupdate-repository
+        yes | rug service-add -t ZYPP ${FULL_URL} dell-firmware-repository
+        rug subscribe dell-firmware-repository
         ;;
 
     *)

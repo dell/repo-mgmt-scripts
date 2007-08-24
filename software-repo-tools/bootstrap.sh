@@ -32,7 +32,7 @@ GPG_KEY[1]=${SERVER}/${REPO_URL}/RPM-GPG-KEY-libsmbios
 # change to 0 to disable check of repository RPM sig.
 CHECK_REPO_SIGNATURE=1
 
-REPO_RPM_VER="1-3"
+REPO_RPM_VER="1-4"
 REPO_NAME="dell-unsupported"
 
 
