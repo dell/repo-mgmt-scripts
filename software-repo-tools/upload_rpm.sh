@@ -5,19 +5,35 @@ set -e
 
 DIR=$(cd $(dirname $0); pwd)
 PATH=$PATH:$DIR
-
-. $DIR/repo.cfg
-
 # dont use '..' here or symlinks mess us up.
 REPO_TOPDIR=$(dirname $DIR)
 
-SRPM=$1
-
-if [ ! -e "$SRPM" ]; then
-    echo "Usage:"
-    echo " upload_rpm.sh  package.src.rpm"
+usage() {
+    echo "upload_rpm.sh [-c config] SRPM"
     exit 1
-fi
+}
+
+CONFIG=$DIR/repo.cfg
+while getopts "c:n" Option
+do
+  case $Option in
+      c)
+        CONFIG=$OPTARG
+        ;;
+      n)
+        unset CONFIG
+        ;;
+      *) 
+        usage
+        ;;
+  esac
+done
+shift $(($OPTIND - 1))
+# Move argument pointer to next.
+
+SRPM=$1
+[ -z "$CONFIG" ] || . $CONFIG
+[ -e "$SRPM" ] || usage
 
 REPO_PATH=$REPO_TOPDIR/incoming/
 RPM_NAME=$(rpm -qp --qf "%{name}" $SRPM)
