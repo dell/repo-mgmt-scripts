@@ -9,7 +9,11 @@ PATH=$PATH:$DIR
 REPO_TOPDIR=$(dirname $DIR)
 
 usage() {
-    echo "upload_rpm.sh [-c config] SRPM"
+    echo "upload_rpm.sh [-c config] [-n] [-l mock_cfg] SRPM"
+    echo 
+    echo "  -c config   - specify config file that defines mock configs. default: repo.cfg"
+    echo "  -n          - unset config default (repo.cfg)"
+    echo "  -l mock_cfg - manually specify a mock config name"
     exit 1
 }
 
@@ -22,6 +26,9 @@ do
         ;;
       n)
         unset CONFIG
+        ;;
+      l)
+        MOCK_CFG_LIST="$MOCK_CFG_LIST $OPTARG"
         ;;
       *) 
         usage
@@ -38,25 +45,11 @@ SRPM=$1
 REPO_PATH=$REPO_TOPDIR/incoming/
 RPM_NAME=$(rpm -qp --qf "%{name}" $SRPM)
 RPM_VER=$(rpm -qp --qf "%{version}-%{release}" $SRPM)
+OUTDIR=$REPO_PATH/'%(dist)s'/'%(target_arch)s'/$RPM_NAME/$RPM_VER/
 
-i=0
-while [ $i -lt ${#REPO[*]} ]; do
-    OUTDIR=$REPO_PATH/${REPO[$i]}/${REPO_ARCH[$i]}/$RPM_NAME/$RPM_VER/
-    OUTRPM=$( ls $OUTDIR/*.rpm 2>/dev/null | grep -v src.rpm | head -n1 )
-    if [ -e "$OUTRPM" ]; then
-        echo "skipping build for ${REPO[$i]} using ${REPO_CFG[$i]} because output RPM already exists."
-        i=$(( $i + 1 ))
-        continue
-    fi
-    mkdir -p $OUTDIR
-    SETARCH=
-    if [ ${REPO_ARCH[$i]} = "i386" ]; then SETARCH='setarch i386'; fi
-    echo "building $SRPM for ${REPO[$i]} using ${REPO_CFG[$i]}"
-    $SETARCH mock -r ${REPO_CFG[$i]} --resultdir=$OUTDIR  --uniqueext=$RPM_NAME $SRPM
-    mock -r ${REPO_CFG[$i]} --uniqueext=$RPM_NAME  clean
-    i=$(( $i + 1 ))
+for cfg in $MOCK_CFG_LIST; do
+    echo "building $SRPM using $cfg"
+    mock -r $cfg --resultdir=$OUTDIR --uniqueext=$RPM_NAME rebuild $SRPM
 done
-
-rm -rf /var/lib/mock/*-$RPM_NAME
 
 process-incoming-rpms.sh
