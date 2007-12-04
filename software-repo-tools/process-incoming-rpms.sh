@@ -34,24 +34,4 @@ do
     gpg --batch --no-tty -a --export libsmbios > $i/repodata/repomd.xml.key
 done
 
-
-for i in $REPO_TOP/*
-do
-    [ -e $i/repodata ] || continue
-
-    echo "process $i"
-    rm -f $i/repodata/repomd.xml.*
-    createrepo --update -d $i
-
-    # only generate old-style metadata for things that need it.
-    case $(basename $i) in
-        el[34])  
-            [ -e /usr/bin/yum-arch ] && yum-arch $i
-            ;;
-    esac
-
-    gpg --batch --no-tty -ab $i/repodata/repomd.xml
-    gpg --batch --no-tty -a --export libsmbios > $i/repodata/repomd.xml.key
-done
-
 find $REPO_TOP -depth -type d -exec rmdir {} \; 2>/dev/null || :

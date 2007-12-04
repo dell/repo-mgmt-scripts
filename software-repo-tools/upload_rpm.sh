@@ -18,7 +18,7 @@ usage() {
 }
 
 CONFIG=$DIR/repo.cfg
-while getopts "c:n" Option
+while getopts "c:nl:" Option
 do
   case $Option in
       c)

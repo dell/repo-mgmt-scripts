@@ -39,11 +39,8 @@ while [ $i -lt ${#REPO[*]} ]; do
     SETARCH=
     if [ ${REPO_ARCH[$i]} = "i386" ]; then SETARCH='setarch i386'; fi
     echo "building $SRPM for ${REPO[$i]} using ${REPO_CFG[$i]}"
-    $SETARCH mock -r ${REPO_CFG[$i]} --resultdir=$OUTDIR  --uniqueext=$RPM_NAME $SRPM
-    mock -r ${REPO_CFG[$i]} --uniqueext=$RPM_NAME  clean
+    $SETARCH mock -r ${REPO_CFG[$i]} --resultdir=$OUTDIR  --uniqueext=$RPM_NAME rebuild $SRPM
     i=$(( $i + 1 ))
 done
-
-rm -rf /var/lib/mock/*-$RPM_NAME
 
 process-incoming-rpm.sh

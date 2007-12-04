@@ -78,6 +78,7 @@ function distro_version()
 	    if $(echo "${DISTRO_REL_RPM}" | grep redhat-release > /dev/null 2>&1) ; then
 	        REDHAT_RELEASE=1
 	    elif (echo "${DISTRO_REL_RPM}" | grep centos-release > /dev/null 2>&1) ; then
+            CENTOS_RELEASE=1    # only for messaging purposes
 	        REDHAT_RELEASE=1
 	    elif (echo "${DISTRO_REL_RPM}" | grep sl-release > /dev/null 2>&1) ; then
 	        REDHAT_RELEASE=1
@@ -218,4 +219,15 @@ case $dist in
 esac
 
 echo "Done!"
+
+echo "============================================================================="
+if [ -n "$CENTOS_RELEASE" ]; then
+    echo 
+    echo "Detected CentOS install. "
+    echo " CentOS 4.x will not work until yum plugins are enabled. See the FAQ URL below."
+fi
+
+echo "If you encounter problems, please read the FAQ at:"
+echo "    http://linux.dell.com/wiki/index.php/Repository/FAQ"
+echo "============================================================================="
 exit 0
