@@ -85,7 +85,9 @@ function distro_version()
 {
     # What distribution are we running?
     dist=unknown
-    [ "${DISTRIB_ID}" = "Ubuntu" ] && echo "LSB" && return
+    # catch all the *buntu types
+    echo "${DISTRIB_ID}" | grep -i buntu > /dev/null 2>&1 && \
+	echo "LSB" && return
     [ ! -e /bin/rpm ] && echo "$dist" && return
     if rpm -q --whatprovides redhat-release >/dev/null 2>&1; then
         DISTRO_REL_RPM=$(rpm -q --whatprovides redhat-release 2>/dev/null | tail -n1)
@@ -157,7 +159,6 @@ function get_key()
 
 function handle_rpms()
 {
-    get_key rpm
     REPO_RPM="${REPO_NAME}-repository-${REPO_RPM_VER}.noarch.rpm"
 # download repo rpm
     basearch=$(uname -i)
