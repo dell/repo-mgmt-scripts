@@ -1,1 +1,1 @@
-../repo-mgmt/movesigned.py
+../../scripts/repo-mgmt/movesigned.py

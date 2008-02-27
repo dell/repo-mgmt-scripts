@@ -1,1 +1,1 @@
-../repo-mgmt/rpmwrap.sh
+../../scripts/repo-mgmt/rpmwrap.sh
