@@ -49,7 +49,7 @@ OUTDIR=$REPO_PATH/'%(dist)s'/'%(target_arch)s'/$RPM_NAME/$RPM_VER/
 
 for cfg in $MOCK_CFG_LIST; do
     echo "building $SRPM using $cfg"
-    mock -r $cfg --resultdir=$OUTDIR --uniqueext=$RPM_NAME rebuild $SRPM
+    mock -r $cfg --resultdir=$OUTDIR --uniqueext=${RPM_NAME}-$$ rebuild $SRPM
 done
 
 process-incoming-rpms.sh
