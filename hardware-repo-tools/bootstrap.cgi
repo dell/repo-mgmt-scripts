@@ -15,8 +15,6 @@ my $thisscript=basename($@);
 my $server_name = $ENV{"SERVER_NAME"} || "linux.dell.com";
 my $request_path = $ENV{"SCRIPT_NAME"} || "/repo/hardware/$thisscript";
 my $hardware_repo = dirname($request_path);
-my $base_repo = dirname($hardware_repo);
-my $hardware_repo = "$base_repo/hardware";
 
 my $fd;
 open $fd, "$thisdir/_tools/bootstrap.sh" or die "#oops...";
