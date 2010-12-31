@@ -23,7 +23,7 @@ do
     echo "process $i"
     rm -f $i/repodata/repomd.xml.*
     repomanage --nocheck -o $i | xargs -r rm
-    createrepo --checkts --update -d $i
+    createrepo --checkts --update --checksum=sha -d $i
     [ -e /usr/bin/yum-arch ] && yum-arch $i
 
     gpg --batch --no-tty -ab $i/repodata/repomd.xml
